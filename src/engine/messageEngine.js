@@ -2,7 +2,9 @@ export function speakAction(action){
 
 if(!("speechSynthesis" in window)) return
 
-const msg = new SpeechSynthesisUtterance(`${action} 점수를 받았습니다`)
+const text = `${action} 점수를 받았습니다`
+
+const msg = new SpeechSynthesisUtterance(text)
 
 msg.lang = "ko-KR"
 msg.rate = 1

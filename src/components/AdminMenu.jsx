@@ -4,12 +4,18 @@ export default function AdminMenu({onDashboard,onExit,onClose}){
 
 async function installApp(){
 
+try{
+
 const ok = await installPWA()
 
 if(ok){
 alert("앱 설치 완료")
 }else{
-alert("설치 취소")
+alert("설치 불가 또는 취소")
+}
+
+}catch(e){
+alert("이 브라우저에서는 설치가 지원되지 않습니다")
 }
 
 }

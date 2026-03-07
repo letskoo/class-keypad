@@ -38,7 +38,14 @@ export default function Keypad(){
 
 const navigate = useNavigate()
 
+/* 클래스 데이터 로드 */
+
+const[students,setStudents]=useState([])
+
+useEffect(()=>{
 loadClassData()
+setStudents([...getStudents()])
+},[])
 
 const settings = loadSettings()
 const actions = settings?.actions?.length ? settings.actions : getActions()
@@ -48,7 +55,6 @@ const[inputError,setInputError]=useState(false)
 
 const[result,setResult]=useState(null)
 
-const[students,setStudents]=useState([])
 const[boss,setBoss]=useState(null)
 
 const[showPassword,setShowPassword]=useState(false)
@@ -59,12 +65,10 @@ const[showAdmin,setShowAdmin]=useState(false)
 const idleTimer = useRef(null)
 
 useEffect(()=>{
-setStudents([...getStudents()])
-},[])
-
-useEffect(()=>{
 restoreDirectoryHandle()
 },[])
+
+/* 보스 스폰 */
 
 useEffect(()=>{
 
@@ -77,6 +81,8 @@ setBoss(spawned)
 }
 
 },[students])
+
+/* 결과 표시 후 초기화 */
 
 useEffect(()=>{
 
