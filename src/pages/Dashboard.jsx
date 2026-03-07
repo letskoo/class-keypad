@@ -173,9 +173,9 @@ return(
 
 <div style={{display:"flex",flexWrap:"wrap",gap:10,marginTop:10}}>
 
-{actions.map(a=>(
+{actions.map((a,i)=>(
 
-<label key={a} style={{display:"flex",alignItems:"center",gap:5}}>
+<label key={i} style={{display:"flex",alignItems:"center",gap:5}}>
 
 <input
 type="checkbox"
