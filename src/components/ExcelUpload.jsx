@@ -1,7 +1,6 @@
 import {readExcel} from "../excel/excelReader"
 import {setClassData} from "../engine/classData"
 import {saveSettings} from "../utils/settings"
-
 import {selectClassFolder} from "../utils/fileSystem"
 
 export default function ExcelUpload({onLoaded}){
@@ -41,13 +40,23 @@ return
 
 }
 
+/* 학생 데이터 저장 */
+
 setClassData(data)
 
+/* 버튼 항목 저장 */
+
+const actions=data.headers.slice(1)
+
 saveSettings({
-actions: data.headers.slice(1)
+actions
 })
 
-if(onLoaded) onLoaded(data)
+/* 대시보드에 항목 전달 */
+
+if(onLoaded){
+onLoaded(data)
+}
 
 alert("학생 데이터 업로드 완료")
 

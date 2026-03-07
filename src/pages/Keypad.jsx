@@ -12,13 +12,19 @@ import {writeLog} from "../engine/logEngine"
 
 import {
 sortStudentsForRanking,
-getChampionName,
 getScoreDiffFromTop
 } from "../engine/rankingEngine"
 
 import {loadSettings} from "../utils/settings"
 
-import {trySpawnBoss,getBoss,attackBoss,clearBoss} from "../engine/bossEngine"
+import {
+trySpawnBoss,
+attackBoss,
+clearBoss,
+getBoss
+} from "../engine/bossEngine"
+
+import {autoGenerateMission,tryClearMission} from "../engine/teamMissionEngine"
 
 import {updateExcelScore} from "../excel/excelWriter"
 import {appendLog} from "../excel/logWriter"
@@ -29,8 +35,10 @@ getLogHandle,
 restoreDirectoryHandle
 } from "../utils/fileSystem"
 
+import {initPWAInstall} from "../utils/pwaInstall"
 import {speakAction} from "../engine/messageEngine"
 
+/* CSS */
 import "../styles/layout.css"
 import "../styles/keypad.css"
 import "../styles/classroom.css"
@@ -40,42 +48,71 @@ export default function Keypad(){
 const navigate = useNavigate()
 
 const[students,setStudents]=useState([])
-
-useEffect(()=>{
-loadClassData()
-setStudents([...getStudents()])
-},[])
-
-const settings = loadSettings()
-const actions = settings?.actions?.length ? settings.actions : getActions()
+const[actions,setActions]=useState([])
 
 const[input,setInput]=useState("")
 const[inputError,setInputError]=useState(false)
 
 const[result,setResult]=useState(null)
-
 const[boss,setBoss]=useState(null)
 
 const[showPassword,setShowPassword]=useState(false)
 const[showAdmin,setShowAdmin]=useState(false)
 
-/* 안정화용 lock */
-
 const actionLock = useRef(false)
-
 const idleTimer = useRef(null)
 
+/* 초기화 */
+
 useEffect(()=>{
+
+loadClassData()
+
+setStudents([...getStudents()])
+setActions([...getActions()])
+
 restoreDirectoryHandle()
+initPWAInstall()
+
+const savedBoss = getBoss()
+
+if(savedBoss){
+setBoss(savedBoss)
+}
+
 },[])
 
-useEffect(()=>{
-if(students.length===0) return
-const spawned = trySpawnBoss(actions,students)
-if(spawned) setBoss(spawned)
-},[students])
+const settings = loadSettings()
+
+const actionList = settings?.actions?.length ? settings.actions : actions
+
+/* 팀 미션 자동 생성 */
 
 useEffect(()=>{
+if(students.length){
+autoGenerateMission(students)
+}
+},[students])
+
+/* 보스 생성 */
+
+useEffect(()=>{
+
+if(students.length===0) return
+if(boss) return
+
+const spawned = trySpawnBoss(actionList,students)
+
+if(spawned){
+setBoss(spawned)
+}
+
+},[students])
+
+/* 결과 자동 초기화 */
+
+useEffect(()=>{
+
 if(!result) return
 
 const timer=setTimeout(()=>{
@@ -86,14 +123,17 @@ return()=>clearTimeout(timer)
 
 },[result])
 
+/* 숫자 자동 초기화 */
+
 useEffect(()=>{
+
 if(!input) return
 
 clearTimeout(idleTimer.current)
 
 idleTimer.current=setTimeout(()=>{
-resetInput()
-},10000)
+setInput("")
+},5000)
 
 return ()=>clearTimeout(idleTimer.current)
 
@@ -109,6 +149,7 @@ setShowAdmin(true)
 }
 
 function openDashboard(){
+setShowAdmin(false)
 navigate("/dashboard")
 }
 
@@ -123,6 +164,8 @@ setInput("")
 actionLock.current=false
 
 }
+
+/* 숫자 입력 */
 
 function press(n){
 
@@ -142,12 +185,11 @@ setInput(input+n)
 }
 
 function cancelInput(){
-
 if(actionLock.current) return
-
 setInput("")
-
 }
+
+/* 버튼 */
 
 async function pressAction(action){
 
@@ -172,29 +214,20 @@ actionLock.current=false
 return
 }
 
-const beforeChampion = getChampionName(students)
+/* 보스 공격 */
 
-const engineResult = updateScore(s,action)
-
-if(engineResult?.blocked){
-
-setResult({
-student:s,
-action,
-score:s.scoreTotal,
-diff:0,
-message:"오늘 이미 누른 버튼입니다.",
-bonus:0,
-bonusType:null,
-rankUp:0,
-levelUp:false,
-level:s.level
-})
-
-return
-}
+if(boss){
 
 const bossResult = attackBoss(action,s,students)
+
+if(bossResult?.boss){
+
+setBoss(bossResult.boss)
+setInput("")
+actionLock.current=false
+return
+
+}
 
 if(bossResult?.defeated){
 
@@ -204,6 +237,8 @@ writeLog(st,"BOSS_REWARD")
 
 clearBoss()
 setBoss(null)
+
+setStudents([...students])
 
 setResult({
 student:s,
@@ -218,13 +253,23 @@ levelUp:false,
 level:s.level
 })
 
-setStudents([...students])
+setInput("")
 return
 }
+
+}
+
+/* 일반 점수 */
+
+const engineResult = updateScore(s,action)
 
 writeLog(s,action)
 
 speakAction(action)
+
+/* 팀미션 체크 */
+
+const missionClear = tryClearMission(s)
 
 try{
 
@@ -244,37 +289,35 @@ console.log("excel save error",e)
 }
 
 const newScore = s.scoreTotal
-const currentChampion = getChampionName(students)
 const diff = getScoreDiffFromTop(students,s.name)
 
-let message="좋아요! 계속 도전하세요!"
+setStudents([...students])
 
-if(currentChampion===s.name && beforeChampion!==s.name){
-message="새로운 챔피언 등장!"
-}else if(diff===0){
-message="현재 챔피언입니다!"
-}else if(diff===1){
-message="1점 차이!"
-}else if(diff<=3){
-message="거의 따라왔어요!"
-}else if(diff<=5){
-message="조금만 더!"
+let msg="좋아요! 계속 도전하세요"
+
+if(engineResult?.blocked){
+msg="이미 누른 항목입니다"
 }
 
-setStudents([...students])
+if(missionClear){
+msg="팀 미션 성공! 보너스!"
+}
 
 setResult({
 student:s,
 action,
 score:newScore,
 diff,
-message,
-bonus:engineResult.bonus,
-bonusType:engineResult.bonusType,
-rankUp:engineResult.rankUp,
-levelUp:engineResult.levelUp,
-level:engineResult.level
+message:msg,
+bonus:engineResult?.bonus || 0,
+bonusType:engineResult?.bonusType,
+rankUp:engineResult?.rankUp || 0,
+levelUp:engineResult?.levelUp,
+level:engineResult?.level
 })
+
+setInput("")
+actionLock.current=false
 
 }
 
@@ -333,10 +376,12 @@ readOnly
 
 <div className="actionGrid">
 
-{actions.map((a,i)=>(
+{actionList.map((a,i)=>(
+
 <button key={i} onClick={()=>pressAction(a)}>
 {a}
 </button>
+
 ))}
 
 </div>

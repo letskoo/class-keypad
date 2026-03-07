@@ -3,13 +3,19 @@ import BossPanel from "./BossPanel"
 
 export default function ResultPanel({top5,result,onConfirm,boss}){
 
-/* =========================
-   결과 화면
-========================= */
+/* 보스 */
+
+if(boss){
+
+return(
+<BossPanel boss={boss}/>
+)
+
+}
+
+/* 학생 결과 */
 
 if(result){
-
-const isNewChampion = result.message && result.message.includes("챔피언")
 
 const streak = getStreak(result.student.name)
 
@@ -35,98 +41,39 @@ justifyContent:"center",
 alignItems:"center"
 }}>
 
-<div style={{
-fontSize:"120px",
-marginBottom:"10px"
-}}>
+<div style={{fontSize:"120px"}}>
 {result.student.character}
 </div>
 
-<div style={{
-fontSize:"48px",
-fontWeight:"800"
-}}>
+<div style={{fontSize:"48px",fontWeight:"800"}}>
 {result.student.name}
 </div>
 
 {streakText && (
-
-<div style={{
-fontSize:"24px",
-color:"#ff6b00",
-marginTop:"10px"
-}}>
+<div style={{fontSize:"24px",color:"#ff6b00"}}>
 {streakText}
 </div>
-
 )}
 
-<div style={{
-marginTop:"20px",
-fontSize:"26px"
-}}>
+<div style={{marginTop:"20px",fontSize:"26px"}}>
 {result.action} +1
 </div>
 
 {result.bonus>0 && (
-
-<div style={{
-fontSize:"26px",
-color:"#ff6b00"
-}}>
+<div style={{fontSize:"26px",color:"#ff6b00"}}>
 {result.bonusType} +{result.bonus}
 </div>
-
 )}
 
-<div style={{
-marginTop:"10px",
-fontSize:"22px"
-}}>
+<div style={{fontSize:"22px"}}>
 현재 점수 {result.score}
 </div>
 
-<div style={{
-fontSize:"22px"
-}}>
+<div style={{fontSize:"22px"}}>
 Lv {result.level}
 </div>
 
-{result.levelUp && (
-
-<div style={{
-fontSize:"24px",
-color:"#6a5cff",
-fontWeight:"700"
-}}>
-LEVEL UP!
-</div>
-
-)}
-
-{result.rankUp>0 && (
-
-<div style={{
-fontSize:"24px",
-color:"#ff4d4f",
-fontWeight:"700"
-}}>
-▲ {result.rankUp}단계 상승
-</div>
-
-)}
-
-<div style={{
-marginTop:"10px",
-fontSize:"20px"
-}}>
-{result.diff > 0 ? `1등과 ${result.diff}점 차이` : "현재 챔피언"}
-</div>
-
-<div style={{
-marginTop:"10px",
-fontSize:"22px"
-}}>
+<div style={{fontSize:"20px",marginTop:"10px"}}>
 {result.message}
 </div>
 
@@ -139,8 +86,7 @@ fontSize:"20px",
 borderRadius:"10px",
 border:"none",
 background:"#4a7cff",
-color:"white",
-cursor:"pointer"
+color:"white"
 }}
 >
 확인
@@ -152,23 +98,7 @@ cursor:"pointer"
 
 }
 
-/* =========================
-   보스 화면
-========================= */
-
-if(boss){
-
-return(
-
-<BossPanel boss={boss}/>
-
-)
-
-}
-
-/* =========================
-   기본 랭킹
-========================= */
+/* TOP5 */
 
 return(
 
@@ -179,11 +109,7 @@ flexDirection:"column",
 justifyContent:"center"
 }}>
 
-<h2 style={{
-marginBottom:"20px"
-}}>
-TOP 5
-</h2>
+<h2 style={{marginBottom:"20px"}}>TOP 5</h2>
 
 {top5.map((s,i)=>(
 
@@ -199,19 +125,9 @@ color:i===0?"#ff8c00":"#333"
 }}
 >
 
-<span>
-
-{i===0 && "🥇"}
-{i===1 && "🥈"}
-{i===2 && "🥉"}
-{i>2 && i+1}
-
-</span>
-
+<span>{i+1}</span>
 <span>{s.character}</span>
-
 <span>{s.name}</span>
-
 <span>{s.scoreTotal}</span>
 
 </div>

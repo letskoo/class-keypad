@@ -1,13 +1,20 @@
 let deferredPrompt = null
+let initialized = false
 
 export function initPWAInstall(){
+
+if(initialized) return
+initialized = true
 
 window.addEventListener("beforeinstallprompt",(e)=>{
 
 e.preventDefault()
-
 deferredPrompt = e
 
+})
+
+window.addEventListener("appinstalled",()=>{
+deferredPrompt = null
 })
 
 }
@@ -22,6 +29,6 @@ const result = await deferredPrompt.userChoice
 
 deferredPrompt = null
 
-return result.outcome === "accepted"
+return result?.outcome === "accepted"
 
 }

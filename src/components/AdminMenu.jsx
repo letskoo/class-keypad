@@ -15,9 +15,23 @@ alert("설치 불가 또는 취소")
 }
 
 }catch(e){
-alert("이 브라우저에서는 설치가 지원되지 않습니다")
+alert("이 브라우저에서는 앱 설치가 지원되지 않습니다")
 }
 
+}
+
+function moveDashboard(){
+if(onClose) onClose()
+if(onDashboard) onDashboard()
+}
+
+function exitApplication(){
+if(onClose) onClose()
+if(onExit) onExit()
+}
+
+function closeMenu(){
+if(onClose) onClose()
 }
 
 return(
@@ -28,19 +42,19 @@ return(
 
 <h2>관리자 메뉴</h2>
 
-<button style={btn} onClick={installApp}>
-앱 설치
+<button type="button" style={btn} onClick={installApp}>
+앱설치
 </button>
 
-<button style={btn} onClick={onDashboard}>
+<button type="button" style={btn} onClick={moveDashboard}>
 대시보드
 </button>
 
-<button style={btn} onClick={onExit}>
-앱 종료
+<button type="button" style={btn} onClick={exitApplication}>
+앱종료
 </button>
 
-<button style={btn} onClick={onClose}>
+<button type="button" style={btn} onClick={closeMenu}>
 닫기
 </button>
 
