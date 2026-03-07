@@ -65,17 +65,33 @@ useEffect(()=>{
 restoreDirectoryHandle()
 },[])
 
+/* 보스 생성 */
+
 useEffect(()=>{
+
 if(students.length===0) return
+
+const bossCleared = localStorage.getItem("bossCleared")
+
+if(bossCleared) return
+
 const spawned = trySpawnBoss(actions,students)
-if(spawned) setBoss(spawned)
+
+if(spawned){
+setBoss(spawned)
+}
+
 },[students])
+
+/* 결과 자동 종료 */
 
 useEffect(()=>{
 if(!result) return
 const timer=setTimeout(()=>resetInput(),5000)
 return()=>clearTimeout(timer)
 },[result])
+
+/* 입력 방치 초기화 */
 
 useEffect(()=>{
 if(!input) return
@@ -174,6 +190,10 @@ writeLog(st,"BOSS_REWARD")
 
 clearBoss()
 setBoss(null)
+
+/* 오늘 보스 종료 플래그 */
+
+localStorage.setItem("bossCleared","1")
 
 setResult({
 student:s,
