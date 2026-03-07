@@ -1,4 +1,18 @@
+import {installPWA} from "../utils/pwaInstall"
+
 export default function AdminMenu({onDashboard,onExit,onClose}){
+
+async function installApp(){
+
+const ok = await installPWA()
+
+if(ok){
+alert("앱 설치 완료")
+}else{
+alert("설치 취소")
+}
+
+}
 
 return(
 
@@ -7,6 +21,10 @@ return(
 <div style={box}>
 
 <h2>관리자 메뉴</h2>
+
+<button style={btn} onClick={installApp}>
+앱 설치
+</button>
 
 <button style={btn} onClick={onDashboard}>
 대시보드

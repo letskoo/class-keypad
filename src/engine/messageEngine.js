@@ -1,21 +1,14 @@
-export function getMessage(diff){
+export function speakAction(action){
 
-if(diff===0){
-return "🏆 공동 1위입니다!"
-}
+if(!("speechSynthesis" in window)) return
 
-if(diff===1){
-return "🔥 1등까지 1점!"
-}
+const msg = new SpeechSynthesisUtterance(`${action} 점수를 받았습니다`)
 
-if(diff<=3){
-return "🔥 거의 따라잡았어요!"
-}
+msg.lang = "ko-KR"
+msg.rate = 1
+msg.pitch = 1
 
-if(diff<=5){
-return "👏 조금만 더!"
-}
-
-return "⭐ 좋은 시작입니다!"
+window.speechSynthesis.cancel()
+window.speechSynthesis.speak(msg)
 
 }

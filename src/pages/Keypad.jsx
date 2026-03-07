@@ -28,6 +28,8 @@ getLogHandle,
 restoreDirectoryHandle
 } from "../utils/fileSystem"
 
+import {speakAction} from "../engine/messageEngine"
+
 import "../styles/layout.css"
 import "../styles/keypad.css"
 import "../styles/classroom.css"
@@ -117,11 +119,7 @@ setInput(input.slice(0,-1))
 return
 }
 
-/* 숫자만 허용 */
-
 if(!/^[0-9]$/.test(n)) return
-
-/* 길이 제한 */
 
 if(input.length>=6) return
 
@@ -137,8 +135,6 @@ setInput("")
 
 async function pressAction(action){
 
-/* 숫자 검증 */
-
 if(!/^\d+$/.test(input)){
 setInputError(true)
 setTimeout(()=>setInputError(false),400)
@@ -150,8 +146,6 @@ setInputError(true)
 setTimeout(()=>setInputError(false),400)
 return
 }
-
-/* 학생 찾기 */
 
 const s = students.find(st=>String(st.num)===input)
 
@@ -213,6 +207,10 @@ return
 setBoss(getBoss())
 
 writeLog(s,action)
+
+/* 음성 출력 (버튼 눌렀을 때만) */
+
+speakAction(action)
 
 try{
 
