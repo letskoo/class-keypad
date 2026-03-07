@@ -18,7 +18,7 @@ getScoreDiffFromTop
 
 import {loadSettings} from "../utils/settings"
 
-import {trySpawnBoss,getBoss,attackBoss} from "../engine/bossEngine"
+import {trySpawnBoss,getBoss,attackBoss,clearBoss} from "../engine/bossEngine"
 
 import {updateExcelScore} from "../excel/excelWriter"
 import {appendLog} from "../excel/logWriter"
@@ -172,6 +172,7 @@ students.forEach(st=>{
 writeLog(st,"BOSS_REWARD")
 })
 
+clearBoss()
 setBoss(null)
 
 setResult({
