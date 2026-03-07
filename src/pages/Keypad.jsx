@@ -1,4 +1,4 @@
-import {useState,useEffect} from "react"
+import {useState,useEffect,useRef} from "react"
 import {useNavigate} from "react-router-dom"
 
 import Header from "../components/Header"
@@ -54,6 +54,10 @@ const[boss,setBoss]=useState(null)
 const[showPassword,setShowPassword]=useState(false)
 const[showAdmin,setShowAdmin]=useState(false)
 
+/* 자동 초기화 타이머 */
+
+const idleTimer = useRef(null)
+
 useEffect(()=>{
 setStudents([...getStudents()])
 },[])
@@ -85,6 +89,22 @@ resetInput()
 return()=>clearTimeout(timer)
 
 },[result])
+
+/* 입력 방치 자동 초기화 */
+
+useEffect(()=>{
+
+if(!input) return
+
+clearTimeout(idleTimer.current)
+
+idleTimer.current=setTimeout(()=>{
+resetInput()
+},10000)
+
+return ()=>clearTimeout(idleTimer.current)
+
+},[input])
 
 function openAdmin(){
 setShowPassword(true)
@@ -208,7 +228,7 @@ setBoss(getBoss())
 
 writeLog(s,action)
 
-/* 음성 출력 (버튼 눌렀을 때만) */
+/* 버튼 음성 */
 
 speakAction(action)
 
