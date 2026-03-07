@@ -1,0 +1,24 @@
+html,body{
+margin:0;
+padding:0;
+touch-action:manipulation;
+-webkit-user-select:none;
+user-select:none;
+-webkit-touch-callout:none;
+}
+
+button{
+touch-action:manipulation;
+}
+
+/* 더블탭 확대 방지 */
+
+*{
+-webkit-tap-highlight-color:transparent;
+}
+
+/* 키오스크 안정화 */
+
+body{
+overscroll-behavior:none;
+}
