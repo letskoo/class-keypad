@@ -9,6 +9,7 @@ import AdminMenu from "../components/AdminMenu"
 import {getStudents,getActions,loadClassData} from "../engine/classData"
 import {updateScore} from "../engine/scoreEngine"
 import {writeLog} from "../engine/logEngine"
+
 import {
 sortStudentsForRanking,
 getChampionName,
@@ -38,8 +39,6 @@ export default function Keypad(){
 
 const navigate = useNavigate()
 
-/* 클래스 데이터 로드 */
-
 const[students,setStudents]=useState([])
 
 useEffect(()=>{
@@ -60,56 +59,29 @@ const[boss,setBoss]=useState(null)
 const[showPassword,setShowPassword]=useState(false)
 const[showAdmin,setShowAdmin]=useState(false)
 
-/* 자동 초기화 타이머 */
-
 const idleTimer = useRef(null)
 
 useEffect(()=>{
 restoreDirectoryHandle()
 },[])
 
-/* 보스 스폰 */
-
 useEffect(()=>{
-
 if(students.length===0) return
-
 const spawned = trySpawnBoss(actions,students)
-
-if(spawned){
-setBoss(spawned)
-}
-
+if(spawned) setBoss(spawned)
 },[students])
 
-/* 결과 표시 후 초기화 */
-
 useEffect(()=>{
-
 if(!result) return
-
-const timer=setTimeout(()=>{
-resetInput()
-},5000)
-
+const timer=setTimeout(()=>resetInput(),5000)
 return()=>clearTimeout(timer)
-
 },[result])
 
-/* 입력 방치 자동 초기화 */
-
 useEffect(()=>{
-
 if(!input) return
-
 clearTimeout(idleTimer.current)
-
-idleTimer.current=setTimeout(()=>{
-resetInput()
-},10000)
-
+idleTimer.current=setTimeout(()=>resetInput(),10000)
 return ()=>clearTimeout(idleTimer.current)
-
 },[input])
 
 function openAdmin(){
@@ -134,8 +106,6 @@ setResult(null)
 setInput("")
 }
 
-/* 숫자 입력 */
-
 function press(n){
 
 if(result) return
@@ -146,7 +116,6 @@ return
 }
 
 if(!/^[0-9]$/.test(n)) return
-
 if(input.length>=6) return
 
 setInput(input+n)
@@ -157,17 +126,9 @@ function cancelInput(){
 setInput("")
 }
 
-/* 점수 버튼 */
-
 async function pressAction(action){
 
 if(!/^\d+$/.test(input)){
-setInputError(true)
-setTimeout(()=>setInputError(false),400)
-return
-}
-
-if(!input){
 setInputError(true)
 setTimeout(()=>setInputError(false),400)
 return
@@ -233,8 +194,6 @@ return
 setBoss(getBoss())
 
 writeLog(s,action)
-
-/* 버튼 음성 */
 
 speakAction(action)
 
@@ -346,10 +305,7 @@ readOnly
 <div className="actionGrid">
 
 {actions.map((a,i)=>(
-<button
-key={i}
-onClick={()=>pressAction(a)}
->
+<button key={i} onClick={()=>pressAction(a)}>
 {a}
 </button>
 ))}
