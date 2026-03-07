@@ -59,6 +59,10 @@ const[boss,setBoss]=useState(null)
 const[showPassword,setShowPassword]=useState(false)
 const[showAdmin,setShowAdmin]=useState(false)
 
+/* 안정화용 lock */
+
+const actionLock = useRef(false)
+
 const idleTimer = useRef(null)
 
 useEffect(()=>{
@@ -73,15 +77,26 @@ if(spawned) setBoss(spawned)
 
 useEffect(()=>{
 if(!result) return
-const timer=setTimeout(()=>resetInput(),5000)
+
+const timer=setTimeout(()=>{
+resetInput()
+},5000)
+
 return()=>clearTimeout(timer)
+
 },[result])
 
 useEffect(()=>{
 if(!input) return
+
 clearTimeout(idleTimer.current)
-idleTimer.current=setTimeout(()=>resetInput(),10000)
+
+idleTimer.current=setTimeout(()=>{
+resetInput()
+},10000)
+
 return ()=>clearTimeout(idleTimer.current)
+
 },[input])
 
 function openAdmin(){
@@ -102,13 +117,17 @@ window.close()
 }
 
 function resetInput(){
+
 setResult(null)
 setInput("")
+actionLock.current=false
+
 }
 
 function press(n){
 
 if(result) return
+if(actionLock.current) return
 
 if(n==="DEL"){
 setInput(input.slice(0,-1))
@@ -123,14 +142,24 @@ setInput(input+n)
 }
 
 function cancelInput(){
+
+if(actionLock.current) return
+
 setInput("")
+
 }
 
 async function pressAction(action){
 
+if(actionLock.current) return
+if(result) return
+
+actionLock.current=true
+
 if(!/^\d+$/.test(input)){
 setInputError(true)
 setTimeout(()=>setInputError(false),400)
+actionLock.current=false
 return
 }
 
@@ -139,6 +168,7 @@ const s = students.find(st=>String(st.num)===input)
 if(!s){
 setInputError(true)
 setTimeout(()=>setInputError(false),400)
+actionLock.current=false
 return
 }
 
@@ -225,7 +255,7 @@ message="새로운 챔피언 등장!"
 message="현재 챔피언입니다!"
 }else if(diff===1){
 message="1점 차이!"
-else if(diff<=3){
+}else if(diff<=3){
 message="거의 따라왔어요!"
 }else if(diff<=5){
 message="조금만 더!"
