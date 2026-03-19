@@ -10,7 +10,7 @@ grid-template-columns:1fr 1fr;
 height:100vh;
 }
 
-/* 왼쪽 파란 영역 */
+/* 왼쪽 패널 */
 
 .leftPanel{
 background:#4a7cff;
@@ -22,18 +22,26 @@ justify-content:center;
 font-size:20px;
 }
 
-/* 오른쪽 키패드 영역 */
+/* 오른쪽 패널 (🔥 핵심 수정) */
 
 .rightPanel{
 background:#f4f6f8;
-padding:40px;
+padding:0;
 display:flex;
 flex-direction:column;
 align-items:center;
-justify-content:center;
+justify-content:flex-start;
 }
 
-/* 톱니바퀴 */
+/* 상단 여백 */
+
+.rightPanel::before{
+content:"";
+height:140px;
+display:block;
+}
+
+/* 톱니 */
 
 .gearBtn{
 position:fixed;
@@ -44,13 +52,4 @@ border:none;
 background:none;
 cursor:pointer;
 z-index:9999;
-}
-
-/* 입력 안내 */
-
-.inputTitle{
-font-size:32px;
-font-weight:700;
-margin-bottom:20px;
-text-align:center;
 }
