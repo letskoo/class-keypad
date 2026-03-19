@@ -66,7 +66,6 @@ if(savedMission) setMission(JSON.parse(savedMission))
 
 },[])
 
-/* 🔥 입력 자동 초기화 */
 useEffect(()=>{
 if(!input) return
 if(inputTimer.current) clearTimeout(inputTimer.current)
@@ -74,7 +73,6 @@ inputTimer.current=setTimeout(()=>setInput(""),5000)
 return ()=>clearTimeout(inputTimer.current)
 },[input])
 
-/* 🔥 결과 자동 닫힘 → 7초 */
 useEffect(()=>{
 if(result){
 const t=setTimeout(()=>setResult(null),7000)
@@ -84,7 +82,6 @@ return ()=>clearTimeout(t)
 
 const actionList = loadSettings()?.actions?.length ? loadSettings().actions : actions
 
-/* 🔥 확인 버튼 */
 function handleConfirm(){
 setResult(null)
 }
@@ -229,10 +226,37 @@ onConfirm={handleConfirm}
 </div>
 </div>
 
+{/* 🔥 숫자 크게 표시 */}
 <div className="pinDisplay">
-{[0,1,2,3].map((_,i)=>(
-<div key={i} className={`dot ${input[i]?"filled":""}`}></div>
-))}
+{[0,1,2,3].map((_,i)=>{
+
+const index = input.length - (3 - i) - 1
+const value = index >= 0 ? input[index] : ""
+
+return(
+<div
+key={i}
+style={{
+width:"80px",
+height:"80px",
+display:"flex",
+alignItems:"center",
+justifyContent:"center",
+fontSize:"42px",
+fontWeight:"800",
+color:"#222"
+}}
+>
+{value || <div style={{
+width:"12px",
+height:"12px",
+borderRadius:"50%",
+background:"#ddd"
+}} />}
+</div>
+)
+
+})}
 </div>
 
 <div className="keypadNew">
