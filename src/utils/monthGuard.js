@@ -7,7 +7,7 @@ now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2,"0")
 
 const savedMonth = localStorage.getItem("classMonth")
 
-/* 첫 실행 */
+/* 최초 실행 */
 
 if(!savedMonth){
 
@@ -27,11 +27,15 @@ localStorage.removeItem("dailyActions")
 localStorage.removeItem("dailyParticipants")
 localStorage.removeItem("classBoss")
 
+/* 추가: 점수 초기화 */
+
+localStorage.removeItem("classStudents")
+
 /* 새 월 기록 */
 
 localStorage.setItem("classMonth",currentMonth)
 
-/* 알림 (UI 영향 없음) */
+/* 로그 */
 
 console.log("NEW MONTH RESET")
 

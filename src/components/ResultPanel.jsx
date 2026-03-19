@@ -1,35 +1,20 @@
 import {getStreak} from "../engine/analyticsEngine"
 import BossPanel from "./BossPanel"
+import TeamMissionPanel from "./TeamMissionPanel"
+import {checkRival} from "../engine/rivalEngine"
 
-export default function ResultPanel({top5,result,onConfirm,boss}){
+export default function ResultPanel({top5=[],result,onConfirm,boss,mission,rival}){
 
-/* 보스 */
+/* 🔥 result 안전 처리 */
+if(result && result.student){
 
-if(boss){
-
-return(
-<BossPanel boss={boss}/>
-)
-
-}
-
-/* 학생 결과 */
-
-if(result){
-
-const streak = getStreak(result.student.name)
+const streak = getStreak(result.student?.name || "")
 
 let streakText=null
 
-if(streak>=10){
-streakText="🔥🔥🔥 10일 연속 참여!"
-}
-else if(streak>=5){
-streakText="🔥🔥 5일 연속 참여!"
-}
-else if(streak>=3){
-streakText="🔥 3일 연속 참여!"
-}
+if(streak>=10) streakText="10연속 참여!"
+else if(streak>=5) streakText="5연속 참여!"
+else if(streak>=3) streakText="3연속 참여!"
 
 return(
 
@@ -42,11 +27,11 @@ alignItems:"center"
 }}>
 
 <div style={{fontSize:"120px"}}>
-{result.student.character}
+{result.student?.character}
 </div>
 
 <div style={{fontSize:"48px",fontWeight:"800"}}>
-{result.student.name}
+{result.student?.name}
 </div>
 
 {streakText && (
@@ -60,33 +45,24 @@ alignItems:"center"
 </div>
 
 {result.bonus>0 && (
-<div style={{fontSize:"26px",color:"#ff6b00"}}>
+<div>
 {result.bonusType} +{result.bonus}
 </div>
 )}
 
-<div style={{fontSize:"22px"}}>
-현재 점수 {result.score}
+<div>
+점수 {result.score}
 </div>
 
-<div style={{fontSize:"22px"}}>
+<div>
 Lv {result.level}
 </div>
 
-<div style={{fontSize:"20px",marginTop:"10px"}}>
-{result.message}
-</div>
-
 <button
-onClick={onConfirm}
+onClick={()=>onConfirm && onConfirm()}
 style={{
 marginTop:"20px",
-padding:"16px 40px",
-fontSize:"20px",
-borderRadius:"10px",
-border:"none",
-background:"#4a7cff",
-color:"white"
+padding:"16px 40px"
 }}
 >
 확인
@@ -98,8 +74,36 @@ color:"white"
 
 }
 
-/* TOP5 */
+/* 🔥 보스 */
+if(boss){
+return(<BossPanel boss={boss}/>)
+}
 
+/* 🔥 미션 */
+if(mission){
+return(
+<div style={{height:"100%",display:"flex",justifyContent:"center"}}>
+<TeamMissionPanel mission={mission}/>
+</div>
+)
+}
+
+/* 🔥 라이벌 */
+if(rival){
+
+const rivalResult = checkRival(rival.student)
+let need = rivalResult?.need || 0
+
+return(
+<div style={{height:"100%",display:"flex",flexDirection:"column",justifyContent:"center",alignItems:"center"}}>
+<h2>라이벌 미션</h2>
+<div>목표 : {rival.student?.name}</div>
+<div>필요 : {need}</div>
+</div>
+)
+}
+
+/* 🔥 기본 */
 return(
 
 <div style={{
@@ -109,27 +113,15 @@ flexDirection:"column",
 justifyContent:"center"
 }}>
 
-<h2 style={{marginBottom:"20px"}}>TOP 5</h2>
+<h2>TOP 5</h2>
 
 {top5.map((s,i)=>(
 
-<div
-key={i}
-style={{
-display:"flex",
-justifyContent:"space-between",
-padding:"10px 0",
-fontSize:"20px",
-fontWeight:i===0?"700":"400",
-color:i===0?"#ff8c00":"#333"
-}}
->
-
+<div key={i} style={{display:"flex",justifyContent:"space-between"}}>
 <span>{i+1}</span>
 <span>{s.character}</span>
 <span>{s.name}</span>
 <span>{s.scoreTotal}</span>
-
 </div>
 
 ))}

@@ -1,43 +1,95 @@
-import { getLevel } from "./levelEngine"
-
 let students = []
 let actions = []
 
-export function setClassData(data){
+const CHARACTERS=[
+"🐶","🐱","🐭","🐹","🐰",
+"🦊","🐻","🐼","🐯","🦁",
+"🐨","🐸","🐵","🐧","🐤",
+"🐙","🦄","🐲","🐳","🐬"
+]
 
-const headers = data.headers
-const rows = data.students
-
-actions = headers.slice(1)
-
-students = rows.map((s,i)=>{
-
-const total = Object.values(s.scores).reduce((a,b)=>a+(b||0),0)
-
-return{
-num:i+1,
-name:s.name,
-scores:s.scores,
-scoreTotal:total,
-character:getCharacter(s.name),
-level:getLevel(total),
-kings:[]
+function randomCharacter(){
+return CHARACTERS[Math.floor(Math.random()*CHARACTERS.length)]
 }
+
+function saveStudents(){
+localStorage.setItem("classStudents",JSON.stringify(students))
+}
+
+function normalizeStudents(list){
+
+return (list || []).map((s,index)=>{
+
+if(!s.num){
+s.num = index + 1
+}
+
+if(!s.character){
+s.character = randomCharacter()
+}
+
+if(!s.scores){
+s.scores = {}
+}
+
+if(!s.scoreTotal){
+const values = Object.values(s.scores)
+s.scoreTotal = values.length ? values.reduce((a,b)=>a+(b||0),0) : 0
+}
+
+if(!s.level){
+s.level = 1
+}
+
+return s
 
 })
 
-localStorage.setItem("classStudents",JSON.stringify(students))
-localStorage.setItem("classActions",JSON.stringify(actions))
+}
+
+function loadStudents(){
+
+const saved = localStorage.getItem("classStudents")
+
+if(saved){
+
+try{
+students = normalizeStudents(JSON.parse(saved))
+return
+}catch(e){
+console.log("classStudents parse fail reset")
+localStorage.removeItem("classStudents")
+}
+
+}
+
+const data = JSON.parse(localStorage.getItem("classData") || "{}")
+
+students = normalizeStudents(data.students || [])
 
 }
 
 export function loadClassData(){
 
-const s = localStorage.getItem("classStudents")
-const a = localStorage.getItem("classActions")
+loadStudents()
 
-if(s) students = JSON.parse(s)
-if(a) actions = JSON.parse(a)
+const data = JSON.parse(localStorage.getItem("classData") || "{}")
+
+actions = data.actions || []
+
+}
+
+export function setClassData(data){
+
+students = normalizeStudents(data.students || [])
+actions = data.actions || []
+
+localStorage.setItem("classData",JSON.stringify({
+students,
+actions
+}))
+
+saveStudents()
 
 }
 
@@ -49,16 +101,6 @@ export function getActions(){
 return actions
 }
 
-function getCharacter(name){
-
-const list=["🐯","🐼","🦊","🐵","🐸","🐻","🐧","🐰","🐱"]
-
-let hash=0
-
-for(let i=0;i<name.length;i++){
-hash+=name.charCodeAt(i)
-}
-
-return list[hash%list.length]
-
+export function saveStudentScores(){
+saveStudents()
 }

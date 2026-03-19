@@ -1,6 +1,6 @@
 import ExcelJS from "exceljs"
 
-export async function updateExcelScore(fileHandle, studentName, action){
+export async function updateExcelScore(fileHandle, studentName, action, score=1){
 
 try{
 
@@ -21,13 +21,9 @@ sheet.getRow(1).eachCell((cell,i)=>{
 headers[i]=cell.value
 })
 
-/* 컬럼 찾기 */
-
 let actionCol = headers.indexOf(action)
 
 if(actionCol === -1) return
-
-/* ExcelJS는 1부터 시작 */
 
 actionCol = actionCol + 1
 
@@ -49,7 +45,7 @@ if(!targetRow) return
 
 const cell = targetRow.getCell(actionCol)
 
-cell.value = (cell.value || 0) + 1
+cell.value = (cell.value || 0) + score
 
 const writable = await fileHandle.createWritable()
 

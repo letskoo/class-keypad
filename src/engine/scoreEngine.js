@@ -1,5 +1,5 @@
 import { getLevel } from "./levelEngine"
-import { getStudents, getActions } from "./classData"
+import { getStudents, getActions, saveStudentScores } from "./classData"
 import { loadSettings } from "../utils/settings"
 import { getRankByScore } from "./rankingEngine"
 
@@ -37,20 +37,14 @@ let daily=getDaily()
 if(!daily[student.name]) daily[student.name]={}
 if(!daily[student.name][day]) daily[student.name][day]=[]
 
-/* 같은 버튼 하루 1회 제한 */
-
 if(daily[student.name][day].includes(action)){
 return{
 blocked:true
 }
 }
 
-/* 버튼 기록 */
-
 daily[student.name][day].push(action)
 saveDaily(daily)
-
-/* 참여 학생 기록 */
 
 let participants=getParticipants()
 if(!participants.includes(student.name)){
@@ -61,8 +55,6 @@ saveParticipants(participants)
 let base = 1
 let bonus = 0
 let bonusType = null
-
-/* 랜덤 이벤트 */
 
 const rand=Math.random()
 
@@ -79,18 +71,14 @@ bonus += 3
 bonusType="MINI BONUS"
 }
 
-/* 미션 완료 보너스 */
-
 if(
 enabledActions.length > 0 &&
 daily[student.name][day].length === enabledActions.length
 ){
 const missionBonus = enabledActions.length
 bonus += missionBonus
-bonusType = `오늘 ${missionBonus}개의 미션을 모두 완료했어요!`
+bonusType = `오늘 ${missionBonus}개의 미션을 모두 완료했어요`
 }
-
-/* 점수 계산 */
 
 const beforeRank = getRankByScore(getStudents(), student.name)
 
@@ -108,6 +96,9 @@ student.level = afterLevel
 const levelUp = afterLevel > beforeLevel
 
 updateKings()
+
+/* 점수 영구 저장 */
+saveStudentScores()
 
 return{
 bonus,

@@ -9,36 +9,21 @@ import AdminMenu from "../components/AdminMenu"
 import {getStudents,getActions,loadClassData} from "../engine/classData"
 import {updateScore} from "../engine/scoreEngine"
 import {writeLog} from "../engine/logEngine"
+import {tryClearMission} from "../engine/teamMissionEngine"
 
 import {
-sortStudentsForRanking,
-getScoreDiffFromTop
+sortStudentsForRanking
 } from "../engine/rankingEngine"
 
 import {loadSettings} from "../utils/settings"
 
 import {
-trySpawnBoss,
 attackBoss,
-clearBoss,
 getBoss
 } from "../engine/bossEngine"
 
-import {autoGenerateMission,tryClearMission} from "../engine/teamMissionEngine"
-
-import {updateExcelScore} from "../excel/excelWriter"
-import {appendLog} from "../excel/logWriter"
-
-import {
-getScoreHandle,
-getLogHandle,
-restoreDirectoryHandle
-} from "../utils/fileSystem"
-
-import {initPWAInstall} from "../utils/pwaInstall"
 import {speakAction} from "../engine/messageEngine"
 
-/* CSS */
 import "../styles/layout.css"
 import "../styles/keypad.css"
 import "../styles/classroom.css"
@@ -51,18 +36,18 @@ const[students,setStudents]=useState([])
 const[actions,setActions]=useState([])
 
 const[input,setInput]=useState("")
-const[inputError,setInputError]=useState(false)
-
 const[result,setResult]=useState(null)
+
 const[boss,setBoss]=useState(null)
+const[mission,setMission]=useState(null)
+const[rival,setRival]=useState(null)
 
 const[showPassword,setShowPassword]=useState(false)
-const[showAdmin,setShowAdmin]=useState(false)
+const[showMenu,setShowMenu]=useState(false)
 
 const actionLock = useRef(false)
-const idleTimer = useRef(null)
-
-/* 초기화 */
+const clickLock = useRef(false)
+const inputTimer = useRef(null)
 
 useEffect(()=>{
 
@@ -71,342 +56,218 @@ loadClassData()
 setStudents([...getStudents()])
 setActions([...getActions()])
 
-restoreDirectoryHandle()
-initPWAInstall()
-
 const savedBoss = getBoss()
+if(savedBoss) setBoss(savedBoss)
 
-if(savedBoss){
-setBoss(savedBoss)
-}
+const savedRival = localStorage.getItem("classRival")
+if(savedRival) setRival(JSON.parse(savedRival))
+
+const savedMission = localStorage.getItem("classMission")
+if(savedMission) setMission(JSON.parse(savedMission))
 
 },[])
 
-const settings = loadSettings()
-
-const actionList = settings?.actions?.length ? settings.actions : actions
-
-/* 팀 미션 자동 생성 */
-
-useEffect(()=>{
-if(students.length){
-autoGenerateMission(students)
-}
-},[students])
-
-/* 보스 생성 */
-
 useEffect(()=>{
 
-if(students.length===0) return
-if(boss) return
+const sync=()=>{
+setBoss(getBoss())
 
-const spawned = trySpawnBoss(actionList,students)
+const r = localStorage.getItem("classRival")
+setRival(r ? JSON.parse(r) : null)
 
-if(spawned){
-setBoss(spawned)
+const m = localStorage.getItem("classMission")
+setMission(m ? JSON.parse(m) : null)
 }
 
-},[students])
+window.addEventListener("focus",sync)
+return ()=>window.removeEventListener("focus",sync)
 
-/* 결과 자동 초기화 */
+},[])
 
 useEffect(()=>{
-
-if(!result) return
-
-const timer=setTimeout(()=>{
-resetInput()
-},5000)
-
-return()=>clearTimeout(timer)
-
+if(result){
+const t=setTimeout(()=>setResult(null),3000)
+return ()=>clearTimeout(t)
+}
 },[result])
 
-/* 숫자 자동 초기화 */
-
+/* 자동 초기화 */
 useEffect(()=>{
 
 if(!input) return
 
-clearTimeout(idleTimer.current)
+if(inputTimer.current){
+clearTimeout(inputTimer.current)
+}
 
-idleTimer.current=setTimeout(()=>{
+inputTimer.current = setTimeout(()=>{
 setInput("")
 },5000)
 
-return ()=>clearTimeout(idleTimer.current)
+return ()=>clearTimeout(inputTimer.current)
 
 },[input])
 
-function openAdmin(){
-setShowPassword(true)
-}
+const actionList = loadSettings()?.actions?.length ? loadSettings().actions : actions
 
-function passwordSuccess(){
-setShowPassword(false)
-setShowAdmin(true)
-}
-
-function openDashboard(){
-setShowAdmin(false)
-navigate("/dashboard")
-}
-
-function exitApp(){
-window.close()
-}
-
-function resetInput(){
-
+function handleConfirm(){
 setResult(null)
-setInput("")
-actionLock.current=false
-
 }
-
-/* 숫자 입력 */
 
 function press(n){
 
 if(result) return
-if(actionLock.current) return
 
-if(n==="DEL"){
-setInput(input.slice(0,-1))
-return
-}
+if(clickLock.current) return
+clickLock.current=true
+setTimeout(()=>clickLock.current=false,200)
 
-if(!/^[0-9]$/.test(n)) return
+if(n==="DEL"){setInput(input.slice(0,-1));return}
+if(n==="CLEAR"){setInput("");return}
+
 if(input.length>=6) return
 
 setInput(input+n)
-
 }
 
-function cancelInput(){
-if(actionLock.current) return
-setInput("")
-}
+function pressAction(action){
 
-/* 버튼 */
-
-async function pressAction(action){
-
-if(actionLock.current) return
 if(result) return
+if(!input) return
 
+if(actionLock.current) return
 actionLock.current=true
-
-if(!/^\d+$/.test(input)){
-setInputError(true)
-setTimeout(()=>setInputError(false),400)
-actionLock.current=false
-return
-}
+setTimeout(()=>actionLock.current=false,300)
 
 const s = students.find(st=>String(st.num)===input)
 
 if(!s){
-setInputError(true)
-setTimeout(()=>setInputError(false),400)
-actionLock.current=false
-return
-}
-
-/* 보스 공격 */
-
-if(boss){
-
-const bossResult = attackBoss(action,s,students)
-
-if(bossResult?.boss){
-
-setBoss(bossResult.boss)
+setResult({message:"등록되지 않은 번호"})
 setInput("")
-actionLock.current=false
 return
-
 }
 
-if(bossResult?.defeated){
+const beforeRank = sortStudentsForRanking(students).findIndex(st=>st.name===s.name)+1
 
-students.forEach(st=>{
-writeLog(st,"BOSS_REWARD")
-})
+const res = updateScore(s,action)
 
-clearBoss()
-setBoss(null)
-
-setStudents([...students])
-
+if(res?.blocked){
+speakAction("이미 수행한 버튼입니다")
 setResult({
 student:s,
 action,
+message:"이미 수행한 버튼입니다",
 score:s.scoreTotal,
-diff:0,
-message:"보스 처치! 전원 +5 보너스",
-bonus:5,
-bonusType:"BOSS BONUS",
-rankUp:0,
-levelUp:false,
 level:s.level
 })
-
 setInput("")
 return
 }
-
-}
-
-/* 일반 점수 */
-
-const engineResult = updateScore(s,action)
 
 writeLog(s,action)
 
-speakAction(action)
+let missionRes = tryClearMission(s,action)
+if(missionRes?.success){
+setResult({
+student:s,
+action,
+message:"팀미션 성공!",
+score:s.scoreTotal,
+level:s.level
+})
+setMission(null)
+setInput("")
+return
+}
 
-/* 팀미션 체크 */
-
-const missionClear = tryClearMission(s)
+const afterRank = sortStudentsForRanking(students).findIndex(st=>st.name===s.name)+1
+const rankUp = beforeRank - afterRank
 
 try{
+speakAction(`${action} 점수가 올라갔습니다`)
+}catch(e){}
 
-const scoreHandle = getScoreHandle()
-const logHandle = getLogHandle()
-
-if(scoreHandle){
-await updateExcelScore(scoreHandle,s.name,action)
-}
-
-if(logHandle){
-await appendLog(logHandle,s,action)
-}
-
-}catch(e){
-console.log("excel save error",e)
-}
-
-const newScore = s.scoreTotal
-const diff = getScoreDiffFromTop(students,s.name)
-
-setStudents([...students])
-
-let msg="좋아요! 계속 도전하세요"
-
-if(engineResult?.blocked){
-msg="이미 누른 항목입니다"
-}
-
-if(missionClear){
-msg="팀 미션 성공! 보너스!"
+if(boss){
+const bossRes = attackBoss(action,s,students)
+if(bossRes?.active) setBoss({...bossRes.boss})
+if(bossRes?.defeated) setBoss(null)
 }
 
 setResult({
 student:s,
 action,
-score:newScore,
-diff,
-message:msg,
-bonus:engineResult?.bonus || 0,
-bonusType:engineResult?.bonusType,
-rankUp:engineResult?.rankUp || 0,
-levelUp:engineResult?.levelUp,
-level:engineResult?.level
+bonus:res?.bonus || 0,
+bonusType:res?.bonusType,
+levelUp:res?.levelUp,
+rankUp:rankUp,
+level:res?.level,
+score:s.scoreTotal,
+message:"잘했어요!"
 })
 
+setStudents([...students])
 setInput("")
-actionLock.current=false
-
 }
 
 const top5=sortStudentsForRanking(students).slice(0,5)
 
 return(
-
 <div>
 
-<Header onAdminClick={openAdmin}/>
-
-<div className="appLayout">
-
-<div className="leftPanel">
-
-<ResultPanel
-top5={top5}
-result={result}
-boss={boss}
-onConfirm={resetInput}
-/>
-
-</div>
-
-<div className="rightPanel">
-
-<h2 className="inputTitle">
-출결 번호를 입력해 주세요
-</h2>
-
-<input
-className={`numberInput ${inputError ? "inputError" : ""}`}
-value={input}
-readOnly
-/>
-
-<div className="keypadGrid">
-
-<button onClick={()=>press("1")}>1</button>
-<button onClick={()=>press("2")}>2</button>
-<button onClick={()=>press("3")}>3</button>
-
-<button onClick={()=>press("4")}>4</button>
-<button onClick={()=>press("5")}>5</button>
-<button onClick={()=>press("6")}>6</button>
-
-<button onClick={()=>press("7")}>7</button>
-<button onClick={()=>press("8")}>8</button>
-<button onClick={()=>press("9")}>9</button>
-
-<button onClick={()=>press("DEL")}>⌫</button>
-<button onClick={()=>press("0")}>0</button>
-<button onClick={cancelInput}>초기화</button>
-
-</div>
-
-<div className="actionGrid">
-
-{actionList.map((a,i)=>(
-
-<button key={i} onClick={()=>pressAction(a)}>
-{a}
-</button>
-
-))}
-
-</div>
-
-</div>
-
-</div>
+<Header onAdminClick={()=>setShowPassword(true)}/>
 
 {showPassword && (
 <PasswordModal
-onSuccess={passwordSuccess}
+onSuccess={()=>{setShowPassword(false);setShowMenu(true)}}
 onClose={()=>setShowPassword(false)}
 />
 )}
 
-{showAdmin && (
+{showMenu && (
 <AdminMenu
-onDashboard={openDashboard}
-onExit={exitApp}
-onClose={()=>setShowAdmin(false)}
+onDashboard={()=>navigate("/dashboard")}
+onExit={()=>window.close()}
+onClose={()=>setShowMenu(false)}
 />
 )}
 
+<div className="appLayout">
+
+<div className="leftPanel">
+<ResultPanel
+top5={top5}
+result={result}
+boss={boss}
+mission={mission}
+rival={rival}
+onConfirm={handleConfirm}
+/>
 </div>
 
-)
+<div className="rightPanel">
 
+<input className="numberInput" value={input} readOnly/>
+
+<div className="keypadGrid">
+{[1,2,3,4,5,6,7,8,9].map(n=>(
+<button key={n} onClick={()=>press(String(n))}>{n}</button>
+))}
+<button onClick={()=>press("DEL")}>DEL</button>
+<button onClick={()=>press("0")}>0</button>
+<button onClick={()=>press("CLEAR")}>초기화</button>
+</div>
+
+<div className="actionGrid">
+{actionList.map((a,i)=>(
+<button key={i} onClick={()=>pressAction(a)}>
+{a}
+</button>
+))}
+</div>
+
+</div>
+</div>
+
+</div>
+)
 }
