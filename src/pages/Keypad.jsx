@@ -121,7 +121,6 @@ return
 
 const res = updateScore(s,action)
 
-/* 중복 */
 if(res?.blocked){
 
 speakAction("이미 수행한 버튼입니다")
@@ -138,10 +137,8 @@ setInput("")
 return
 }
 
-/* 성공 */
 speakAction(`${action} 점수가 올라갑니다`)
 
-/* 팀미션 */
 const missionResult = tryClearMission(s,action)
 
 if(missionResult?.success){
@@ -158,14 +155,12 @@ setInput("")
 return
 }
 
-/* 보스 */
 if(boss){
 const bossRes = attackBoss(action,s,students)
 if(bossRes?.active) setBoss({...bossRes.boss})
 if(bossRes?.defeated) setBoss(null)
 }
 
-/* 기본 */
 setResult({
 student:s,
 action,
@@ -182,7 +177,7 @@ setStudents([...students])
 setInput("")
 }
 
-const top5=sortStudentsForRanking(students).slice(0,5)
+const allStudents = sortStudentsForRanking(students)
 
 return(
 <div>
@@ -208,7 +203,7 @@ onClose={()=>setShowMenu(false)}
 
 <div className="leftPanel">
 <ResultPanel
-top5={top5}
+top5={allStudents}
 result={result}
 boss={boss}
 mission={mission}
@@ -226,7 +221,6 @@ onConfirm={handleConfirm}
 </div>
 </div>
 
-{/* 🔥 숫자 크게 표시 */}
 <div className="pinDisplay">
 {[0,1,2,3].map((_,i)=>{
 

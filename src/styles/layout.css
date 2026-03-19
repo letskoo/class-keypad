@@ -2,12 +2,14 @@ body{
 margin:0;
 font-family:system-ui;
 background:#f4f6f8;
+overflow:hidden;
 }
 
 .appLayout{
 display:grid;
 grid-template-columns:1fr 1fr;
 height:100vh;
+overflow:hidden;
 }
 
 /* 왼쪽 패널 */
@@ -18,8 +20,14 @@ color:white;
 padding:60px;
 display:flex;
 flex-direction:column;
-justify-content:center;
+justify-content:flex-start;
 font-size:20px;
+overflow:hidden;
+}
+
+/* 스크롤 숨김 */
+.leftPanel *::-webkit-scrollbar{
+display:none;
 }
 
 /* 오른쪽 패널 */
@@ -30,19 +38,15 @@ padding:0;
 display:flex;
 flex-direction:column;
 align-items:center;
-justify-content:center; /* 🔥 중앙 정렬 핵심 */
-
-/* 🔥 전체 UI 10% 축소 */
+justify-content:center;
 transform:scale(0.9);
 transform-origin:center;
+overflow:hidden;
 }
 
-/* 상단 여백 제거 (중앙 정렬 위해 삭제) */
 .rightPanel::before{
 display:none;
 }
-
-/* 톱니 */
 
 .gearBtn{
 position:fixed;
