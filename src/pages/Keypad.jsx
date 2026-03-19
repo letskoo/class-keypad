@@ -66,6 +66,7 @@ if(savedMission) setMission(JSON.parse(savedMission))
 
 },[])
 
+/* 🔥 입력 자동 초기화 */
 useEffect(()=>{
 if(!input) return
 if(inputTimer.current) clearTimeout(inputTimer.current)
@@ -73,14 +74,20 @@ inputTimer.current=setTimeout(()=>setInput(""),5000)
 return ()=>clearTimeout(inputTimer.current)
 },[input])
 
+/* 🔥 결과 자동 닫힘 → 7초 */
 useEffect(()=>{
 if(result){
-const t=setTimeout(()=>setResult(null),3000)
+const t=setTimeout(()=>setResult(null),7000)
 return ()=>clearTimeout(t)
 }
 },[result])
 
 const actionList = loadSettings()?.actions?.length ? loadSettings().actions : actions
+
+/* 🔥 확인 버튼 */
+function handleConfirm(){
+setResult(null)
+}
 
 function press(n){
 
@@ -134,7 +141,7 @@ setInput("")
 return
 }
 
-/* 성공 음성 */
+/* 성공 */
 speakAction(`${action} 점수가 올라갑니다`)
 
 /* 팀미션 */
@@ -161,7 +168,7 @@ if(bossRes?.active) setBoss({...bossRes.boss})
 if(bossRes?.defeated) setBoss(null)
 }
 
-/* 기본 결과 */
+/* 기본 */
 setResult({
 student:s,
 action,
@@ -209,6 +216,7 @@ result={result}
 boss={boss}
 mission={mission}
 rival={rival}
+onConfirm={handleConfirm}
 />
 </div>
 

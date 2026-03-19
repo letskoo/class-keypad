@@ -1,15 +1,28 @@
-/* 🔥 핀 위치 (상단으로 이동) */
+/* 🔥 타이틀 */
+.inputTitle{
+font-size:36px;
+font-weight:700;
+text-align:center;
+margin-bottom:12px;
+}
+
+.inputTitle div{
+font-size:18px;
+color:#777;
+margin-top:10px;
+}
+
+/* 🔥 핀 영역 */
 .pinDisplay{
 display:flex;
 justify-content:center;
-gap:14px;
-margin-top:0;
-margin-bottom:80px;
+gap:20px;
+margin-bottom:100px;
 }
 
 .dot{
-width:14px;
-height:14px;
+width:18px;
+height:18px;
 border-radius:50%;
 background:#ddd;
 }
@@ -18,61 +31,59 @@ background:#ddd;
 background:#555;
 }
 
-/* 🔥 숫자 키패드 (간격 + 중앙 정렬) */
+/* 🔥 키패드 전체 폭 (버튼 기준 정렬 핵심) */
 .keypadNew{
 display:grid;
-grid-template-columns:repeat(3,80px);
-gap:36px 60px;
+grid-template-columns:repeat(3,120px);
+gap:48px 120px;
 justify-content:center;
+margin-bottom:100px;
 }
 
-/* 🔥 버튼 제거 → 텍스트만 */
+/* 🔥 숫자 */
 .keypadNew button{
-font-size:28px;
+font-size:32px;
 background:none;
 border:none;
 cursor:pointer;
 color:#222;
-padding:0;
+height:60px;
+display:flex;
+align-items:center;
+justify-content:center;
 }
 
-/* 눌림 효과 */
 .keypadNew button:active{
 transform:scale(0.9);
 }
 
 /* 🔥 하단 라인 */
 .keypadNew button:nth-child(10){
-font-size:22px;
+font-size:24px;
 }
 
 .keypadNew button:nth-child(12){
 font-size:20px;
-color:#666;
+color:#777;
 }
 
-/* 🔥 액션 버튼 (다시 보이게) */
+/* 🔥 버튼 영역 (기준 맞추기 핵심) */
 .actionGrid{
 display:flex;
-gap:20px;
-margin-top:80px;
-width:80%;
+gap:30px;
+width:720px;
 justify-content:center;
+margin-top:40px;
 }
 
+/* 🔥 버튼 */
 .actionGrid button{
 flex:1;
-padding:18px;
-font-size:18px;
+padding:22px 0;
+font-size:20px;
 border:none;
-border-radius:12px;
+border-radius:16px;
 background:#4a7cff;
 color:white;
 font-weight:700;
-}
-
-/* 🔥 하단 고정 느낌 */
-.actionGrid{
-position:relative;
-bottom:-40px;
 }
