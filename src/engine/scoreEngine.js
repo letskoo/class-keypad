@@ -2,6 +2,7 @@ import { getLevel } from "./levelEngine"
 import { getStudents, getActions, saveStudentScores } from "./classData"
 import { loadSettings } from "../utils/settings"
 import { getRankByScore } from "./rankingEngine"
+import { writeLog } from "./logEngine"
 
 function today(){
 const d=new Date()
@@ -45,6 +46,9 @@ blocked:true
 
 daily[student.name][day].push(action)
 saveDaily(daily)
+
+/* 🔥 핵심 추가 */
+writeLog(student, action)
 
 let participants=getParticipants()
 if(!participants.includes(student.name)){
@@ -97,7 +101,6 @@ const levelUp = afterLevel > beforeLevel
 
 updateKings()
 
-/* 점수 영구 저장 */
 saveStudentScores()
 
 return{
