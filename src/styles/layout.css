@@ -12,11 +12,11 @@ height:100vh;
 overflow:hidden;
 }
 
-/* 왼쪽 패널 */
+/* 🔥 왼쪽 패널 (다크 네이비로 변경 + 기존 유지) */
 
 .leftPanel{
-background:#4a7cff;
-color:white;
+background:#1e293b;
+color:#ffffff;
 padding:60px;
 display:flex;
 flex-direction:column;
@@ -25,12 +25,12 @@ font-size:20px;
 overflow:hidden;
 }
 
-/* 스크롤 숨김 */
+/* 🔥 스크롤 숨김 유지 */
 .leftPanel *::-webkit-scrollbar{
 display:none;
 }
 
-/* 오른쪽 패널 */
+/* 🔥 오른쪽 패널 (기존 유지) */
 
 .rightPanel{
 background:#f4f6f8;
@@ -47,6 +47,8 @@ overflow:hidden;
 .rightPanel::before{
 display:none;
 }
+
+/* 🔥 톱니 유지 */
 
 .gearBtn{
 position:fixed;

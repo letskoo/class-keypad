@@ -26,7 +26,7 @@ const password = settings.password || "0000"
 if(input===password){
 onSuccess()
 }else{
-alert("비밀번호가 틀렸습니다")
+alert("비밀번호가 일치하지 않습니다")
 setInput("")
 }
 
@@ -38,10 +38,18 @@ return(
 
 <div style={box}>
 
-<h2>관리자 비밀번호</h2>
+<h2 style={{marginBottom:20}}>관리자 비밀번호</h2>
 
 <div style={display}>
-{input.replace(/./g,"●")}
+{[0,1,2,3].map((_,i)=>{
+const index = input.length - (3 - i) - 1
+const value = index >= 0 ? input[index] : ""
+return(
+<div key={i} style={digitBox}>
+{value || <div style={dot}/>}
+</div>
+)
+})}
 </div>
 
 <div style={keypad}>
@@ -60,13 +68,17 @@ style={btn}
 
 </div>
 
-<br/>
+<div style={{display:"flex",gap:10,marginTop:20}}>
 
-<button onClick={check}>확인</button>
-
-<button onClick={onClose} style={{marginLeft:10}}>
-닫기
+<button onClick={check} style={actionBtn}>
+확인
 </button>
+
+<button onClick={onClose} style={actionBtn}>
+취소
+</button>
+
+</div>
 
 </div>
 
@@ -82,7 +94,7 @@ top:0,
 left:0,
 right:0,
 bottom:0,
-background:"rgba(0,0,0,0.4)",
+background:"rgba(0,0,0,0.5)",
 display:"flex",
 justifyContent:"center",
 alignItems:"center",
@@ -90,26 +102,61 @@ zIndex:999
 }
 
 const box={
-background:"#fff",
+background:"#f8fafc",
 padding:30,
-borderRadius:10,
-width:320,
-textAlign:"center"
+borderRadius:16,
+width:360,
+textAlign:"center",
+boxShadow:"0 10px 30px rgba(0,0,0,0.2)"
 }
 
 const display={
-fontSize:30,
-marginBottom:20,
-height:40
+display:"flex",
+justifyContent:"center",
+gap:16,
+marginBottom:30
+}
+
+const digitBox={
+width:60,
+height:60,
+display:"flex",
+alignItems:"center",
+justifyContent:"center",
+fontSize:32,
+fontWeight:"700",
+color:"#1e293b"
+}
+
+const dot={
+width:10,
+height:10,
+borderRadius:"50%",
+background:"#cbd5f5"
 }
 
 const keypad={
 display:"grid",
 gridTemplateColumns:"repeat(3,1fr)",
-gap:10
+gap:20
 }
 
 const btn={
-padding:15,
-fontSize:18
+height:60,
+fontSize:24,
+border:"none",
+background:"none",
+color:"#1e293b",
+cursor:"pointer"
+}
+
+const actionBtn={
+flex:1,
+height:50,
+borderRadius:12,
+border:"none",
+background:"#334155",
+color:"#fff",
+fontWeight:"700",
+cursor:"pointer"
 }

@@ -118,7 +118,7 @@ export default function ResultPanel({ top5 = [], result, onConfirm, boss, missio
           color: "#d9d9d9",
           letterSpacing: "1px"
         }}>
-          TOP 1 ~ {top5.length}
+          랭킹배틀 TOP 1 ~ {top5.length}
         </div>
 
         <div style={{
@@ -126,7 +126,7 @@ export default function ResultPanel({ top5 = [], result, onConfirm, boss, missio
           fontWeight: "800",
           marginTop: "8px"
         }}>
-          랭킹 배틀 진행중! 지금 실시간으로 1위가 뒤바뀌고 있습니다
+          반드시 내가 1등을 하고 말테야!
         </div>
       </div>
 

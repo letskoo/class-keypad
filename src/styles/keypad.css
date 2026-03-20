@@ -28,14 +28,14 @@ background:#ddd;
 }
 
 .dot.filled{
-background:#555;
+background:#334155; /* 🔥 네이비 톤으로 수정 */
 }
 
-/* 🔥 키패드 (세로 간격 20% 증가 핵심) */
+/* 🔥 키패드 (세로 간격 증가 유지) */
 .keypadNew{
 display:grid;
 grid-template-columns:repeat(3,140px);
-gap:60px 120px; /* 🔥 40 → 48 (세로만 증가) */
+gap:60px 120px;
 justify-content:center;
 margin:40px 0 80px 0;
 }
@@ -46,7 +46,7 @@ font-size:34px;
 background:none;
 border:none;
 cursor:pointer;
-color:#222;
+color:#1e293b; /* 🔥 네이비 텍스트 */
 height:70px;
 display:flex;
 align-items:center;
@@ -55,6 +55,7 @@ justify-content:center;
 
 .keypadNew button:active{
 transform:scale(0.9);
+color:#0f172a; /* 🔥 클릭시 더 진하게 */
 }
 
 /* 🔥 하단 라인 */
@@ -64,7 +65,7 @@ font-size:26px;
 
 .keypadNew button:nth-child(12){
 font-size:20px;
-color:#777;
+color:#64748b; /* 🔥 보조 텍스트 톤 */
 }
 
 /* 🔥 버튼 영역 */
@@ -78,17 +79,29 @@ padding:0;
 margin-top:0;
 }
 
-/* 🔥 버튼 */
+/* 🔥 버튼 (네이비 + 포인트 구조로 수정) */
 .actionGrid button{
 flex:0 0 140px;
 height:55px;
 font-size:18px;
 border:none;
 border-radius:14px;
-background:#4a7cff;
+background:#334155; /* 🔥 메인 네이비 */
 color:white;
 font-weight:700;
 display:flex;
 align-items:center;
 justify-content:center;
+transition:0.2s;
+}
+
+/* 🔥 클릭 */
+.actionGrid button:active{
+background:#1e293b;
+transform:scale(0.95);
+}
+
+/* 🔥 포인트 (유일한 강조색) */
+.actionGrid button:hover{
+background:#3b82f6; /* 🔥 포인트 블루 */
 }
