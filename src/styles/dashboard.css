@@ -1,0 +1,82 @@
+.dashboardLayout{
+display:flex;
+height:100vh;
+}
+
+/* 왼쪽 탭 패널 */
+.dashboardSidebar{
+width:260px;
+background:#1e293b;
+color:white;
+display:flex;
+flex-direction:column;
+padding:30px 20px;
+gap:10px;
+}
+
+/* 탭 */
+.dashboardTab{
+padding:14px 16px;
+border-radius:10px;
+cursor:pointer;
+font-weight:600;
+transition:0.2s;
+color:#cbd5f5;
+}
+
+.dashboardTab:hover{
+background:#334155;
+color:white;
+}
+
+/* 🔥 선택된 탭 (화이트) */
+.dashboardTab.active{
+background:#ffffff;
+color:#1e293b;
+}
+
+/* 오른쪽 컨텐츠 */
+.dashboardContent{
+flex:1;
+background:#f8fafc;
+padding:40px;
+overflow:auto;
+}
+
+/* 🔥 하단 버튼 영역 */
+.dashboardBottom{
+margin-top:auto;
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+/* 🔥 공통 버튼 */
+.dashboardBtn{
+height:45px;
+border-radius:10px;
+border:none;
+font-weight:700;
+cursor:pointer;
+transition:0.2s;
+}
+
+/* 뒤로가기 */
+.dashboardBtn.back{
+background:#334155;
+color:white;
+}
+
+.dashboardBtn.back:hover{
+background:#1e293b;
+}
+
+/* 종료 */
+.dashboardBtn.exit{
+background:#ef4444;
+color:white;
+}
+
+.dashboardBtn.exit:hover{
+background:#dc2626;
+}
