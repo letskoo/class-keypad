@@ -8,6 +8,8 @@ getConsecutiveAbsent,
 getAbsentPatterns
 } from "../engine/analyticsEngine"
 
+import { generateTeamMission } from "../engine/teamMissionEngine"
+
 import "../styles/dashboard.css"
 
 export default function Dashboard(){
@@ -32,7 +34,6 @@ window.close()
 
 const DAYS=["일","월","화","수","목","금","토"]
 
-/* 관심학생 */
 function getInactive(){
 
 const logs = JSON.parse(localStorage.getItem("classLogs") || "[]")
@@ -59,10 +60,39 @@ return {name:s.name,days:diff}
 
 const inactive = getInactive()
 
-/* 🔥 안전 처리 함수 */
 function safeJoin(arr){
-if(!arr || arr.length===0) return "없음"
+if(!Array.isArray(arr) || arr.length===0) return "없음"
 return arr.join(", ")
+}
+
+/* ===== 팀미션 ===== */
+function startTeamMission(){
+
+const students = JSON.parse(localStorage.getItem("classStudents") || "[]")
+const actions = JSON.parse(localStorage.getItem("classData") || "{}")?.actions || []
+
+generateTeamMission(students,actions)
+
+alert("팀미션 시작됨")
+
+}
+
+/* ===== 오늘 보너스 ===== */
+function startTodayBonus(){
+
+const now = new Date()
+
+const date =
+now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0")
+
+localStorage.setItem("todayBonusEvent",JSON.stringify({
+date,
+bonus:5,
+used:{}   // 🔥 학생별 1회 제한
+}))
+
+alert("오늘 보너스 이벤트 시작")
+
 }
 
 return(
@@ -78,87 +108,88 @@ return(
 </div>
 </div>
 
-<div className="dashboardContent" style={{display:"block",overflow:"auto"}}>
+<div className="dashboardContent">
 
-{/* 오늘 요약 */}
-<div className="reportSection">
-<h2>오늘 요약</h2>
-<div>전체 [ {summary.total || "N"} ] 명</div>
-<div>
-참여 [ {summary.present || "N"} ] 명 |
-미참여 [ {summary.nonParticipants || "N"} ] 명 |
-결석 [ {summary.absent===null?"N":summary.absent} ] 명
-</div>
+{/* ===== 카드 ===== */}
+<div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"20px",marginBottom:"30px"}}>
+
+<div style={card}>
+<div style={cardTitle}>전체</div>
+<div style={cardValue}>{summary.total || 0}</div>
 </div>
 
-<hr/>
-
-{/* 출결 분석 */}
-<div className="reportSection">
-<h2>출결 분석</h2>
-
-<div>
-오늘 결석한 학생은 {
-summary.absentList===null
-? "데이터 부족"
-: safeJoin(summary.absentList)
-} 입니다
+<div style={card}>
+<div style={cardTitle}>참여</div>
+<div style={cardValue}>{summary.present || 0}</div>
 </div>
 
-<br/>
+<div style={card}>
+<div style={cardTitle}>미참여</div>
+<div style={cardValue}>{summary.nonParticipants || 0}</div>
+</div>
 
-{consecutive===null && <div>데이터 부족</div>}
-
-{consecutive && (
-<>
-<div>3일째 결석한 학생은 {safeJoin(consecutive[3])}</div>
-<div>5일째 결석한 학생은 {safeJoin(consecutive[5])}</div>
-<div>7일 이상 결석한 학생은 {safeJoin(consecutive[7])}</div>
-</>
-)}
+<div style={card}>
+<div style={cardTitle}>결석</div>
+<div style={cardValue}>{summary.absent===null?0:summary.absent}</div>
+</div>
 
 </div>
 
-<hr/>
+{/* ===== 결석 ===== */}
+<div style={box}>
 
-{/* 요일별 */}
-<div className="reportSection">
-<h2>요일별 결석 현황</h2>
+<h3 style={boxTitle}>결석 분석</h3>
 
-{patterns===null && "데이터 부족"}
+<div style={row}>
+오늘 결석 : {summary.absentList===null ? "데이터 없음" : safeJoin(summary.absentList)}
+</div>
+
+<div style={row}>3일 연속 : {safeJoin(consecutive?.[3])}</div>
+<div style={row}>5일 연속 : {safeJoin(consecutive?.[5])}</div>
+<div style={row}>7일 이상 : {safeJoin(consecutive?.[7])}</div>
+
+</div>
+
+{/* ===== 패턴 ===== */}
+<div style={box}>
+
+<h3 style={boxTitle}>요일별 결석</h3>
 
 {patterns && (
-<div className="weekChart">
+<div style={{display:"flex",alignItems:"flex-end",gap:"20px",height:"120px"}}>
+
 {patterns.map((v,i)=>(
-<div key={i} className="weekItem">
-<div className="weekBar" style={{height:v*10}}></div>
-<div>{DAYS[i]}</div>
+<div key={i} style={{display:"flex",flexDirection:"column",alignItems:"center"}}>
+<div style={{width:"20px",height:v*10,background:"#1e293b",borderRadius:"4px"}}></div>
+<div style={{marginTop:"6px"}}>{DAYS[i]}</div>
 </div>
 ))}
+
 </div>
 )}
 
 </div>
 
-<hr/>
+{/* ===== 위험 ===== */}
+<div style={box}>
 
-{/* 관심 학생 */}
-<div className="reportSection">
-<h2>사각지대 학생 탐구</h2>
+<h3 style={boxTitle}>위험 학생</h3>
 
-<div>
-3일간 버튼을 누르지 않은 학생은 {inactive.length ? inactive.map(s=>s.name).join(", ") : "없음"} 입니다
+<div style={row}>
+3일 이상 미참여 : {inactive.length ? inactive.map(s=>s.name).join(", ") : "없음"}
 </div>
 
-<br/>
+<div style={{display:"flex",gap:"10px",marginTop:"15px"}}>
 
-<button className="actionBtn">
-이 학생을 상위 10% 학생과 팀 지어 주기
+<button className="actionBtn" onClick={startTeamMission}>
+상위 10%와 팀미션 하기
 </button>
 
-<button className="actionBtn">
-이 학생이 버튼 누르면 보너스 점수 주기
+<button className="actionBtn" onClick={startTodayBonus}>
+오늘 버튼 누르면 보너스 주기
 </button>
+
+</div>
 
 </div>
 
@@ -168,4 +199,46 @@ summary.absentList===null
 
 )
 
+}
+
+/* ===== 스타일 ===== */
+
+const card={
+background:"#fff",
+padding:"20px",
+borderRadius:"14px",
+boxShadow:"0 4px 12px rgba(0,0,0,0.05)",
+textAlign:"center"
+}
+
+const cardTitle={
+fontSize:"14px",
+color:"#64748b",
+marginBottom:"6px"
+}
+
+const cardValue={
+fontSize:"28px",
+fontWeight:"700",
+color:"#1e293b"
+}
+
+const box={
+background:"#fff",
+padding:"20px",
+borderRadius:"14px",
+marginBottom:"20px",
+boxShadow:"0 4px 12px rgba(0,0,0,0.05)"
+}
+
+const boxTitle={
+fontSize:"16px",
+fontWeight:"700",
+marginBottom:"10px"
+}
+
+const row={
+fontSize:"14px",
+marginBottom:"6px",
+color:"#374151"
 }

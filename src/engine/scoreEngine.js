@@ -47,7 +47,7 @@ blocked:true
 daily[student.name][day].push(action)
 saveDaily(daily)
 
-/* 🔥 핵심 추가 */
+/* 로그 */
 writeLog(student, action)
 
 let participants=getParticipants()
@@ -75,13 +75,36 @@ bonus += 3
 bonusType="MINI BONUS"
 }
 
+/***** 오늘 보너스 이벤트 *****/
+const event = JSON.parse(localStorage.getItem("todayBonusEvent") || "null")
+
+if(event){
+
+if(event.date === day){
+
+if(!event.used[student.name]){
+
+bonus += event.bonus
+bonusType = "오늘 이벤트 +5"
+
+event.used[student.name] = true
+localStorage.setItem("todayBonusEvent",JSON.stringify(event))
+
+}
+
+}else{
+localStorage.removeItem("todayBonusEvent")
+}
+
+}
+
 if(
 enabledActions.length > 0 &&
 daily[student.name][day].length === enabledActions.length
 ){
 const missionBonus = enabledActions.length
 bonus += missionBonus
-bonusType = `오늘 ${missionBonus}개의 미션을 모두 완료했어요`
+bonusType = `오늘 ${missionBonus}개 미션 완료`
 }
 
 const beforeRank = getRankByScore(getStudents(), student.name)
