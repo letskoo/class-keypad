@@ -104,3 +104,26 @@ return actions
 export function saveStudentScores(){
 saveStudents()
 }
+
+/* 🔥 전체 초기화 (학생 + 점수 + 번호 + 로그 포함) */
+export function resetAllStudents(){
+
+localStorage.removeItem("classStudents")
+localStorage.removeItem("classLogs")
+localStorage.removeItem("dailyActions")
+localStorage.removeItem("dailyParticipants")
+
+const data = JSON.parse(localStorage.getItem("classData") || "{}")
+
+students = normalizeStudents((data.students || []).map((s,index)=>({
+...s,
+num:index+1,
+scores:{},
+scoreTotal:0,
+level:1
+})))
+
+saveStudents()
+
+return true
+}

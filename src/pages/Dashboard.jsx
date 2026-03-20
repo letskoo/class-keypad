@@ -20,7 +20,7 @@ import {loadSettings,saveSettings} from "../utils/settings"
 
 import {getTeacherRecommendations} from "../engine/teacherAIEngine"
 
-import {getStudents,getActions} from "../engine/classData"
+import {getStudents,getActions,resetAllStudents} from "../engine/classData"
 import {generateRival} from "../engine/rivalEngine"
 import {generateTeamMission} from "../engine/teamMissionEngine"
 
@@ -144,6 +144,22 @@ alert("팀미션 생성 실패")
 }
 }
 
+/* 🔥 전체 초기화 */
+
+function resetAll(){
+
+const ok = window.confirm("초기화 됩니다. 정말 초기화 하시겠습니까?")
+
+if(!ok) return
+
+resetAllStudents()
+
+alert("초기화 완료")
+
+window.location.reload()
+
+}
+
 function back(){
 navigate("/")
 }
@@ -208,6 +224,14 @@ onChange={()=>toggleAction(h)}
 <button onClick={forceRival}>라이벌 생성</button>
 <button onClick={forceMission}>팀미션 생성</button>
 <button onClick={clearAllEvents}>이벤트 취소</button>
+
+<br/><br/>
+
+<h2>시스템 관리</h2>
+
+<button onClick={resetAll} style={{background:"#ef4444",color:"#fff"}}>
+전체 초기화
+</button>
 
 <br/><br/>
 
