@@ -8,8 +8,6 @@ getConsecutiveAbsent,
 getAbsentPatterns
 } from "../engine/analyticsEngine"
 
-import { generateTeamMission } from "../engine/teamMissionEngine"
-
 import ExcelUpload from "../components/ExcelUpload"
 import PasswordSettings from "../components/PasswordSettings"
 
@@ -73,32 +71,6 @@ const inactive = getInactive()
 function safeJoin(arr){
 if(!Array.isArray(arr) || arr.length===0) return "없음"
 return arr.join(", ")
-}
-
-/* 팀미션 */
-function startTeamMission(){
-const students = JSON.parse(localStorage.getItem("classStudents") || "[]")
-const actions = JSON.parse(localStorage.getItem("classData") || "{}")?.actions || []
-generateTeamMission(students,actions)
-alert("팀미션 시작됨")
-}
-
-/* 보너스 */
-function startTodayBonus(){
-
-const now = new Date()
-
-const date =
-now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0")
-
-localStorage.setItem("todayBonusEvent",JSON.stringify({
-date,
-bonus:5,
-used:{}
-}))
-
-alert("오늘 보너스 이벤트 시작")
-
 }
 
 /* 초기화 */
@@ -179,12 +151,17 @@ return(
 
 <div className="dashboardContent">
 
-{/* ===== 학생 분석 ===== */}
+{/* 분석 */}
 {tab==="analysis" && (
 
 <>
 
-<div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"20px",marginBottom:"30px"}}>
+<div style={{
+display:"grid",
+gridTemplateColumns:"repeat(4,1fr)",
+gap:"20px",
+marginBottom:"30px"
+}}>
 
 <div style={card}><div style={cardTitle}>전체</div><div style={cardValue}>{summary.total || 0}</div></div>
 <div style={card}><div style={cardTitle}>참여</div><div style={cardValue}>{summary.present || 0}</div></div>
@@ -193,7 +170,13 @@ return(
 
 </div>
 
-<div style={box}>
+<div style={{
+display:"grid",
+gridTemplateColumns:"repeat(4,1fr)",
+gap:"20px"
+}}>
+
+<div style={{...box,gridColumn:"span 2",minHeight:"260px"}}>
 <h3 style={boxTitle}>결석 분석</h3>
 <div style={row}>오늘 결석 : {summary.absentList===null ? "데이터 없음" : safeJoin(summary.absentList)}</div>
 <div style={row}>3일 : {safeJoin(consecutive?.[3])}</div>
@@ -201,7 +184,7 @@ return(
 <div style={row}>7일 : {safeJoin(consecutive?.[7])}</div>
 </div>
 
-<div style={box}>
+<div style={{...box,gridColumn:"span 2",minHeight:"260px"}}>
 <h3 style={boxTitle}>요일 패턴</h3>
 {patterns && (
 <div style={{display:"flex",alignItems:"flex-end",gap:"20px",height:"120px"}}>
@@ -215,13 +198,17 @@ return(
 )}
 </div>
 
-<div style={box}>
+<div style={{...box,gridColumn:"span 4",minHeight:"300px",display:"flex",flexDirection:"column",justifyContent:"space-between"}}>
+<div>
 <h3 style={boxTitle}>위험 학생</h3>
 <div style={row}>3일 이상 : {inactive.length ? inactive.map(s=>s.name).join(", ") : "없음"}</div>
+</div>
 
-<div style={{display:"flex",gap:"10px",marginTop:"15px"}}>
-<button className="actionBtn" onClick={startTeamMission}>상위 10%와 팀미션 하기</button>
-<button className="actionBtn" onClick={startTodayBonus}>오늘 버튼 누르면 보너스 주기</button>
+<div style={{display:"flex",gap:"10px"}}>
+<button className="actionBtn">상위 10%와 팀미션 하기</button>
+<button className="actionBtn">오늘 버튼 누르면 보너스 주기</button>
+</div>
+
 </div>
 
 </div>
@@ -230,7 +217,7 @@ return(
 
 )}
 
-{/* ===== 학생 관리 ===== */}
+{/* 관리 */}
 {tab==="manage" && (
 
 <>
@@ -242,7 +229,7 @@ return(
 </button>
 
 <button className="actionBtn" onClick={exportLogExcel}>
-누적 로그 다운로드
+로그 다운로드
 </button>
 
 <button
@@ -298,15 +285,11 @@ boxShadow:"0 2px 8px rgba(0,0,0,0.05)"
 
 )}
 
-{/* ===== 키패드 설정 (건드리지 않음) ===== */}
+{/* 키패드 설정 */}
 {tab==="keypad" && (
 <ExcelUpload onLoaded={()=>setTab("keypad")}/>
 )}
 
-{/* ===== 미션 이벤트 (건드리지 않음) ===== */}
-{tab==="mission" && (
-<div>미션 / 이벤트 준비중</div>
-)}
 
 </div>
 
@@ -316,9 +299,18 @@ boxShadow:"0 2px 8px rgba(0,0,0,0.05)"
 
 }
 
-/* 스타일 */
+const card={
+background:"#fff",
+padding:"20px",
+borderRadius:"14px",
+boxShadow:"0 4px 12px rgba(0,0,0,0.05)",
+textAlign:"center",
+minHeight:"150px",
+display:"flex",
+flexDirection:"column",
+justifyContent:"center"
+}
 
-const card={background:"#fff",padding:"20px",borderRadius:"14px",boxShadow:"0 4px 12px rgba(0,0,0,0.05)",textAlign:"center"}
 const cardTitle={fontSize:"14px",color:"#64748b"}
 const cardValue={fontSize:"28px",fontWeight:"700"}
 const box={background:"#fff",padding:"20px",borderRadius:"14px",marginBottom:"20px",boxShadow:"0 4px 12px rgba(0,0,0,0.05)"}
