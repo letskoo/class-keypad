@@ -1,5 +1,3 @@
-// 🔥 변경: 탭 하나 추가 + ExcelUpload 이동
-
 import {useEffect,useState} from "react"
 import {useNavigate} from "react-router-dom"
 
@@ -38,7 +36,6 @@ setSummary(getTodaySummary())
 setPresentList(getTodayPresentStudents())
 setConsecutive(getConsecutiveAbsent())
 setPatterns(getAbsentPatterns())
-
 setStudents([...getStudents()])
 },[])
 
@@ -56,7 +53,6 @@ const students = JSON.parse(localStorage.getItem("classStudents") || "[]")
 const todayDate = new Date()
 
 return students.map(s=>{
-
 const userLogs = logs.filter(l=>l.student===s.name && l.action!=="AUTO_ATTENDANCE")
 
 if(userLogs.length===0){
@@ -107,33 +103,24 @@ alert("오늘 보너스 이벤트 시작")
 
 /* 초기화 */
 function resetAll(){
-
 if(!window.confirm("정말 초기화 하겠습니까?")) return
-
 resetAllStudents()
 alert("초기화 완료")
 window.location.reload()
-
 }
 
 /* 학생 삭제 */
 function deleteStudent(name){
-
 if(!window.confirm(`${name} 삭제?`)) return
-
 const list = students.filter(s=>s.name!==name)
-
 localStorage.setItem("classStudents",JSON.stringify(list))
 setStudents(list)
-
 }
 
 /* 학생 추가 */
 function addStudent(){
-
 const name = prompt("이름")
 if(!name) return
-
 const list = [...students,{
 name,
 num:students.length+1,
@@ -141,31 +128,24 @@ scores:{},
 scoreTotal:0,
 level:1
 }]
-
 localStorage.setItem("classStudents",JSON.stringify(list))
 setStudents(list)
-
 }
 
 /* 학생 수정 */
 function editStudent(s){
-
 const name = prompt("이름 수정",s.name)
 if(!name) return
-
 const num = prompt("번호 수정",s.num)
 if(!num) return
-
 const list = students.map(st=>{
 if(st.name===s.name){
 return {...st,name,num:Number(num)}
 }
 return st
 })
-
 localStorage.setItem("classStudents",JSON.stringify(list))
 setStudents(list)
-
 }
 
 return(
@@ -182,9 +162,12 @@ return(
 학생 관리
 </div>
 
-{/* 🔥 추가 */}
 <div className={`dashboardTab ${tab==="keypad"?"active":""}`} onClick={()=>setTab("keypad")}>
 키패드 설정
+</div>
+
+<div className={`dashboardTab ${tab==="mission"?"active":""}`} onClick={()=>setTab("mission")}>
+미션 / 이벤트
 </div>
 
 <div className="dashboardBottom">
@@ -196,7 +179,7 @@ return(
 
 <div className="dashboardContent">
 
-{/* ================= 분석 ================= */}
+{/* ===== 학생 분석 ===== */}
 {tab==="analysis" && (
 
 <>
@@ -247,7 +230,7 @@ return(
 
 )}
 
-{/* ================= 관리 ================= */}
+{/* ===== 학생 관리 ===== */}
 {tab==="manage" && (
 
 <>
@@ -315,15 +298,14 @@ boxShadow:"0 2px 8px rgba(0,0,0,0.05)"
 
 )}
 
-{/* ================= 키패드 설정 ================= */}
+{/* ===== 키패드 설정 (건드리지 않음) ===== */}
 {tab==="keypad" && (
-
-<>
-
 <ExcelUpload onLoaded={()=>setTab("keypad")}/>
+)}
 
-</>
-
+{/* ===== 미션 이벤트 (건드리지 않음) ===== */}
+{tab==="mission" && (
+<div>미션 / 이벤트 준비중</div>
 )}
 
 </div>

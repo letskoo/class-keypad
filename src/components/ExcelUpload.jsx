@@ -1,33 +1,54 @@
 import {readExcel} from "../excel/excelReader"
 import {setClassData} from "../engine/classData"
-import {saveSettings} from "../utils/settings"
-import {useState} from "react"
+import {saveSettings,loadSettings} from "../utils/settings"
+import {useState,useEffect} from "react"
 
 export default function ExcelUpload({onLoaded}){
 
 const[headers,setHeaders]=useState([])
 const[selected,setSelected]=useState({})
 
+/* 🔥 기존 항목 유지 (핵심 수정) */
+useEffect(()=>{
+
+const savedHeaders = JSON.parse(localStorage.getItem("classHeaders") || "[]")
+const savedActions = loadSettings()?.actions || []
+
+if(savedHeaders.length){
+
+setHeaders(savedHeaders)
+
+const map={}
+savedHeaders.forEach(a=>{
+map[a]=savedActions.includes(a)
+})
+
+setSelected(map)
+
+}
+
+},[])
+
 async function upload(e){
 
 try{
 
 const file = e.target.files?.[0]
-
 if(!file) return
 
 const data = await readExcel(file)
 
 if(!data || !data.students || !data.headers){
-
-alert("?묒? ?뺤떇 ?ㅻ쪟")
+alert("엑셀 형식 오류")
 return
-
 }
 
 setClassData(data)
 
 const actions=data.headers.slice(1)
+
+/* 🔥 headers 저장 (핵심) */
+localStorage.setItem("classHeaders",JSON.stringify(actions))
 
 const map={}
 actions.forEach(a=>map[a]=false)
@@ -43,13 +64,12 @@ if(onLoaded){
 onLoaded(data)
 }
 
-alert("?숈깮 ?곗씠???낅줈???꾨즺")
+alert("학생 데이터 업로드 완료")
 
 }catch(e){
 
 console.log("excel upload fail",e)
-
-alert("?묒? ?낅줈???ㅽ뙣")
+alert("엑셀 업로드 실패")
 
 }
 
@@ -63,7 +83,7 @@ const newState={...selected}
 const count = Object.values(newState).filter(v=>v).length
 
 if(!newState[a] && count>=5){
-alert("理쒕? 5媛쒓퉴吏 ?좏깮 媛??")
+alert("최대 5개까지 선택 가능")
 return
 }
 
@@ -83,7 +103,6 @@ return(
 
 <div>
 
-{/* 버튼 중앙 정렬 */}
 <label
 className="actionBtn"
 style={{
@@ -102,7 +121,6 @@ style={{display:"none"}}
 />
 </label>
 
-{/* 카드형 체크 UI */}
 {headers.length>0 && (
 
 <div style={{
